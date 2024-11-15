@@ -9,17 +9,17 @@ import (
 // The user is responsible for keeping pointer conversions type-safe
 type UnsafePool struct {
 	items   []unsafe.Pointer
-	new     NewFn
-	cleanup CleanupFn
+	new     unsafeNewFn
+	cleanup unsafeCleanupFn
 	inuse   int
 }
 
-type NewFn = func() unsafe.Pointer
-type CleanupFn = func(unsafe.Pointer)
+type unsafeNewFn = func() unsafe.Pointer
+type unsafeCleanupFn = func(unsafe.Pointer)
 
-func MakeUnsafePool(initialSize int, new NewFn, cleanup CleanupFn) UnsafePool {
+func MakeUnsafePool(initialSize int, new unsafeNewFn, cleanup unsafeCleanupFn) UnsafePool {
 	if new == nil {
-		log.Fatalln("Both `new` function should never be `nil`")
+		log.Fatalln("The `new` function should never be `nil`")
 	}
 	if cleanup == nil {
 		cleanup = func(p unsafe.Pointer) {}
