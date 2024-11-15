@@ -94,3 +94,46 @@ func ExampleUnsafePool() {
 	pool.Release(unsafe.Pointer(b))
 }
 ```
+
+### Unsafe Thin Version
+
+Similar to the `UnsafePool` but with no extra events/function pointers.
+
+```go
+import (
+	"unsafe"
+
+	"github.com/rzvxa/poolit"
+)
+
+type MyType struct {
+	value string
+}
+
+func newInstance() unsafe.Pointer {
+	return unsafe.Pointer(new(MyType))
+}
+
+func cleanupInstance(ptr unsafe.Pointer) {
+	*(*MyType)(ptr) = MyType{}
+}
+
+func ExampleUnsafeThinPool() {
+	pool := poolit.MakeUnsafeThinPool(
+		10,
+		newInstance,
+	)
+
+	a := (*MyType)(pool.Get(newInstance))
+	b := (*MyType)(pool.Get(newInstance))
+
+	// use a and b
+
+	aptr := unsafe.Pointer(a)
+	bptr := unsafe.Pointer(b)
+	cleanupInstance(aptr)
+	cleanupInstance(bptr)
+	pool.Release(aptr)
+	pool.Release(bptr)
+}
+```
