@@ -1,13 +1,11 @@
-# poolit
+package poolit_test
 
-Small, low overhead object pool to Go!
+import (
+	"log"
+	"unsafe"
 
-## Example
-
-### Generic Version
-
-```go
-import "github.com/rzvxa/poolit"
+	"github.com/rzvxa/poolit"
+)
 
 func ExampleGenericPool() {
 	type MyType struct {
@@ -15,8 +13,8 @@ func ExampleGenericPool() {
 	}
 	pool := poolit.MakeGenericPool(
 		10,
-		func() *MyType { return new(MyType) }, // new
-		func(mt *MyType) { *mt = MyType{} }, 	 // cleanup
+		func() *MyType { return new(MyType) },
+		func(mt *MyType) { *mt = MyType{} },
 	)
 
 	a := pool.Get()
@@ -27,14 +25,6 @@ func ExampleGenericPool() {
 	pool.Release(a)
 	pool.Release(b)
 }
-```
-
-### Interface Version
-
-###### Usually you want this for a mix of safety and convenient
-
-```go
-import "github.com/rzvxa/poolit"
 
 func ExampleObjectPool() {
 	type MyType struct {
@@ -42,8 +32,8 @@ func ExampleObjectPool() {
 	}
 	pool := poolit.MakeObjectPool(
 		10,
-		func() any { return new(MyType) }, // new
-		func(it any) {                     // cleanup
+		func() any { return new(MyType) },
+		func(it any) {
 			val, ok := it.(*MyType)
 			if !ok {
 				log.Fatalln("Invalid object")
@@ -60,18 +50,6 @@ func ExampleObjectPool() {
 	pool.Release(a)
 	pool.Release(b)
 }
-```
-
-### Unsafe Version
-
-In this version you are responsible to ensure the safety of `UnsafePool.Get` and `UnsafePool.Release` calls, But it comes with minimal indirection.
-
-```go
-import (
-	"unsafe"
-
-	"github.com/rzvxa/poolit"
-)
 
 func ExampleUnsafePool() {
 	type MyType struct {
@@ -79,8 +57,8 @@ func ExampleUnsafePool() {
 	}
 	pool := poolit.MakeUnsafePool(
 		10,
-		func() unsafe.Pointer { return unsafe.Pointer(new(MyType)) }, // new
-		func(p unsafe.Pointer) { 																			// cleanup
+		func() unsafe.Pointer { return unsafe.Pointer(new(MyType)) },
+		func(p unsafe.Pointer) {
 			*(*MyType)(p) = MyType{}
 		},
 	)
@@ -93,4 +71,3 @@ func ExampleUnsafePool() {
 	pool.Release(unsafe.Pointer(a))
 	pool.Release(unsafe.Pointer(b))
 }
-```
