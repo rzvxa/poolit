@@ -1,3 +1,3 @@
-module github.com/rzvxa/gopoolit
+module github.com/rzvxa/poolit
 
 go 1.20.0
