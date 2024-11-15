@@ -1,8 +1,10 @@
-package poolit
+package poolit_test
 
 import (
 	"testing"
 	"unsafe"
+
+	"github.com/rzvxa/poolit"
 )
 
 type Type struct {
@@ -11,7 +13,7 @@ type Type struct {
 	c string
 }
 
-func TestCapacity(t *testing.T) {
+func TestUnsafePoolCapacity(t *testing.T) {
 	newCount := 0
 	expectNewCount := func(expect int) {
 		if newCount != expect {
@@ -22,7 +24,7 @@ func TestCapacity(t *testing.T) {
 		newCount++
 		return unsafe.Pointer(new(Type))
 	}
-	pool := MakeUnsafePool(2, new, nil)
+	pool := poolit.MakeUnsafePool(2, new, nil)
 	expectNewCount(2)
 
 	// taking existing items shouldn't affect the pool size
@@ -42,11 +44,11 @@ func TestCapacity(t *testing.T) {
 }
 
 // Last In First Out
-func TestLIFO(t *testing.T) {
+func TestUnsafePoolLIFO(t *testing.T) {
 	new := func() unsafe.Pointer {
 		return unsafe.Pointer(new(Type))
 	}
-	pool := MakeUnsafePool(2, new, nil)
+	pool := poolit.MakeUnsafePool(2, new, nil)
 
 	objA1 := pool.Get()
 	objB1 := pool.Get()
@@ -63,11 +65,11 @@ func TestLIFO(t *testing.T) {
 }
 
 // Make sure to run tests with `-gcflags=all=-d=checkptr` to test pointers correctly
-func TestSafety(t *testing.T) {
+func TestUnsafePoolSafety(t *testing.T) {
 	new := func() unsafe.Pointer {
 		return unsafe.Pointer(&Type{a: true, b: 42, c: "fresh"})
 	}
-	pool := MakeUnsafePool(2, new, nil)
+	pool := poolit.MakeUnsafePool(2, new, nil)
 
 	obj1 := (*Type)(pool.Get())
 	obj2 := (*Type)(pool.Get())
@@ -89,7 +91,7 @@ func TestSafety(t *testing.T) {
 	}
 }
 
-func TestCleanup(t *testing.T) {
+func TestUnsafePoolCleanup(t *testing.T) {
 	new := func() unsafe.Pointer {
 		return unsafe.Pointer(&Type{c: "fresh"})
 	}
@@ -102,7 +104,7 @@ func TestCleanup(t *testing.T) {
 			c: "clean",
 		}
 	}
-	pool := MakeUnsafePool(1, new, cleanup)
+	pool := poolit.MakeUnsafePool(1, new, cleanup)
 
 	obj := (*Type)(pool.Get())
 
@@ -127,7 +129,7 @@ func TestCleanup(t *testing.T) {
 }
 
 // new items should be fresh(aka don't go through a redundant cleanup)
-func TestFreshness(t *testing.T) {
+func TestUnsafePoolFreshness(t *testing.T) {
 	new := func() unsafe.Pointer {
 		return unsafe.Pointer(&Type{c: "fresh"})
 	}
@@ -136,7 +138,7 @@ func TestFreshness(t *testing.T) {
 		cleanCount++
 		*(*Type)(ptr) = Type{c: "clean"}
 	}
-	pool := MakeUnsafePool(1, new, cleanup)
+	pool := poolit.MakeUnsafePool(1, new, cleanup)
 
 	pool.Get()
 	obj := (*Type)(pool.Get())
