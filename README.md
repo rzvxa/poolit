@@ -16,7 +16,7 @@ func ExampleGenericPool() {
 	pool := poolit.MakeGenericPool(
 		10,
 		func() *MyType { return new(MyType) }, // new
-		func(mt *MyType) { *mt = MyType{} }, 	 // cleanup
+		func(mt *MyType) { *mt = MyType{} },   // cleanup
 	)
 
 	a := pool.Get()
@@ -80,7 +80,7 @@ func ExampleUnsafePool() {
 	pool := poolit.MakeUnsafePool(
 		10,
 		func() unsafe.Pointer { return unsafe.Pointer(new(MyType)) }, // new
-		func(p unsafe.Pointer) { 																			// cleanup
+		func(p unsafe.Pointer) {                                      // cleanup
 			*(*MyType)(p) = MyType{}
 		},
 	)
