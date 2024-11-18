@@ -52,6 +52,11 @@ func (p *ObjectPool) Release(it any) {
 	p.items[ix] = it
 }
 
+// number of inuse objects
+func (p *UnsafeThinPool) InUse() int {
+	return p.inuse
+}
+
 func (p *ObjectPool) ix() int {
 	return len(p.items) - p.inuse - 1
 }
