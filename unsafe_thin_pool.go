@@ -39,6 +39,10 @@ func (p *UnsafeThinPool) Get(new unsafeNewFn) unsafe.Pointer {
 
 // SAFETY: Caller is responsible to only release appropiate types which are expected by the callers of `UnsafeThinPool.Get` method
 func (p *UnsafeThinPool) Release(ptr unsafe.Pointer) {
+	if p.inuse == 0 {
+		p.items = append(p.items, nil)
+		p.inuse++
+	}
 	p.inuse--
 	ix := p.ix()
 	p.items[ix] = ptr

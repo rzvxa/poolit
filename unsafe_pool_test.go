@@ -152,3 +152,24 @@ func TestUnsafePoolFreshness(t *testing.T) {
 		t.Fatalf("Expected cleanup to never be called, But it's called %d times", cleanCount)
 	}
 }
+
+// pool should extend if we release more items than it have initially created(AKA allow orphan items to be released into the pool)
+func TestUnsafePoolAllowOrphan(t *testing.T) {
+	new := func() unsafe.Pointer {
+		return unsafe.Pointer(&Type{c: "fresh"})
+	}
+	cleanCount := 0
+	cleanup := func(ptr unsafe.Pointer) {
+		cleanCount++
+		*(*Type)(ptr) = Type{c: "clean"}
+	}
+	pool := poolit.MakeUnsafePool(1, new, cleanup)
+
+	o1, o2, o3 := new(), new(), new()
+	pool.Release(o1)
+	pool.Release(o2)
+	pool.Release(o3)
+	if cleanCount != 3 {
+		t.Fatalf("Expected cleanCount to be 3 found %d", cleanCount)
+	}
+}

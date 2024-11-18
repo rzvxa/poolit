@@ -47,6 +47,10 @@ func (p *ObjectPool) Get() any {
 
 func (p *ObjectPool) Release(it any) {
 	p.cleanup(it)
+	if p.inuse == 0 {
+		p.items = append(p.items, nil)
+		p.inuse++
+	}
 	p.inuse--
 	ix := p.ix()
 	p.items[ix] = it
