@@ -53,7 +53,7 @@ func (p *ObjectPool) Release(it any) {
 }
 
 // number of inuse objects
-func (p *UnsafeThinPool) InUse() int {
+func (p *ObjectPool) InUse() int {
 	return p.inuse
 }
 
