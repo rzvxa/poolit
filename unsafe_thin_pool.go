@@ -21,6 +21,11 @@ func MakeUnsafeThinPool(initialSize int, new unsafeNewFn) UnsafeThinPool {
 	return p
 }
 
+func NewUnsafeThinPool(initialSize int, new unsafeNewFn) *UnsafeThinPool {
+	self := MakeUnsafeThinPool(initialSize, new)
+	return &self
+}
+
 // SAFETY: Caller is responsible to cast the `unsafe.Pointer` to the correct type
 func (p *UnsafeThinPool) Get(new unsafeNewFn) unsafe.Pointer {
 	ix := p.ix()

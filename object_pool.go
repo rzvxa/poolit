@@ -30,6 +30,11 @@ func MakeObjectPool(initialSize int, new anyNewFn, cleanup anyCleanupFn) ObjectP
 	return p
 }
 
+func NewObjectPool(initialSize int, new anyNewFn, cleanup anyCleanupFn) *ObjectPool {
+	self := MakeObjectPool(initialSize, new, cleanup)
+	return &self
+}
+
 func (p *ObjectPool) Get() any {
 	ix := p.ix()
 	p.inuse++

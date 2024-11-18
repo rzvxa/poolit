@@ -16,6 +16,11 @@ func MakeGenericPool[T any](initialSize int, new func() *T, cleanup func(*T)) Ge
 	}
 }
 
+func NewGenericPool[T any](initialSize int, new func() *T, cleanup func(*T)) *GenericPool[T] {
+	self := MakeGenericPool(initialSize, new, cleanup)
+	return &self
+}
+
 func (p *GenericPool[T]) Get() *T {
 	return (*T)(p.pool.Get())
 }
